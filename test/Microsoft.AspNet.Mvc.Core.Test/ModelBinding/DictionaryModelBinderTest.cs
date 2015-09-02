@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Http.Internal;
+using Microsoft.AspNet.Mvc.ModelBinding.Validation;
 using Microsoft.Framework.Primitives;
 using Moq;
 using Xunit;
@@ -135,7 +136,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             Assert.NotEqual(ModelBindingResult.NoResult, result);
             Assert.True(result.IsModelSet);
             Assert.Equal(modelName, result.Key);
-            Assert.NotNull(result.ValidationNode);
 
             var resultDictionary = Assert.IsAssignableFrom<IDictionary<string, string>>(result.Model);
             Assert.Equal(dictionary, resultDictionary);
@@ -172,7 +172,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             Assert.NotEqual(ModelBindingResult.NoResult, result);
             Assert.True(result.IsModelSet);
             Assert.Equal("prefix", result.Key);
-            Assert.NotNull(result.ValidationNode);
 
             var resultDictionary = Assert.IsAssignableFrom<IDictionary<string, string>>(result.Model);
             Assert.Empty(resultDictionary);
@@ -223,7 +222,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             Assert.NotEqual(ModelBindingResult.NoResult, result);
             Assert.True(result.IsModelSet);
             Assert.Equal("prefix", result.Key);
-            Assert.NotNull(result.ValidationNode);
 
             var resultDictionary = Assert.IsAssignableFrom<IDictionary<long, int>>(result.Model);
             Assert.Equal(dictionary, resultDictionary);
@@ -264,7 +262,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             Assert.NotEqual(ModelBindingResult.NoResult, result);
             Assert.True(result.IsModelSet);
             Assert.Equal("prefix", result.Key);
-            Assert.NotNull(result.ValidationNode);
 
             var resultDictionary = Assert.IsAssignableFrom<IDictionary<int, ModelWithProperties>>(result.Model);
             Assert.Equal(dictionary, resultDictionary);
@@ -298,7 +295,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             Assert.NotEqual(ModelBindingResult.NoResult, result);
             Assert.True(result.IsModelSet);
             Assert.Equal(modelName, result.Key);
-            Assert.NotNull(result.ValidationNode);
 
             var resultDictionary = Assert.IsAssignableFrom<SortedDictionary<string, string>>(result.Model);
             Assert.Equal(expectedDictionary, resultDictionary);
@@ -330,10 +326,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
             Assert.Empty(Assert.IsType<Dictionary<string, string>>(result.Model));
             Assert.Equal("modelName", result.Key);
             Assert.True(result.IsModelSet);
-
-            Assert.Same(result.ValidationNode.Model, result.Model);
-            Assert.Same(result.ValidationNode.Key, result.Key);
-            Assert.Same(result.ValidationNode.ModelMetadata, context.ModelMetadata);
         }
 
         [Theory]
@@ -403,7 +395,8 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                 {
                     HttpContext = new DefaultHttpContext(),
                     MetadataProvider = new TestModelMetadataProvider(),
-                }
+                },
+                ValidationState = new ValidationStateDictionary(),
             };
 
             return modelBindingContext;
@@ -462,7 +455,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding.Test
                     KeyValuePair<int, string> value;
                     if (values.TryGetValue(mbc.ModelName, out value))
                     {
-                        return ModelBindingResult.SuccessAsync(mbc.ModelName, value, validationNode: null);
+                        return ModelBindingResult.SuccessAsync(mbc.ModelName, value);
                     }
                     else
                     {

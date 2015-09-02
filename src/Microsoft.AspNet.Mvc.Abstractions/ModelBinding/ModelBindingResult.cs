@@ -31,7 +31,7 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         /// <returns>A <see cref="ModelBindingResult"/> representing a failed model binding operation.</returns>
         public static ModelBindingResult Failed([NotNull] string key)
         {
-            return new ModelBindingResult(key, model: null, isModelSet: false, validationNode: null);
+            return new ModelBindingResult(key, model: null, isModelSet: false);
         }
 
         /// <summary>
@@ -53,10 +53,9 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         /// <returns>A <see cref="ModelBindingResult"/> representing a successful model bind.</returns>
         public static ModelBindingResult Success(
             [NotNull] string key,
-            object model,
-            ModelValidationNode validationNode)
+            object model)
         {
-            return new ModelBindingResult(key, model, isModelSet: true, validationNode: validationNode);
+            return new ModelBindingResult(key, model, isModelSet: true);
         }
 
         /// <summary>
@@ -69,18 +68,16 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         /// <returns>A completed <see cref="Task{ModelBindingResult}"/> representing a successful model bind.</returns>
         public static Task<ModelBindingResult> SuccessAsync(
             [NotNull] string key,
-            object model,
-            ModelValidationNode validationNode)
+            object model)
         {
-            return Task.FromResult(Success(key, model, validationNode));
+            return Task.FromResult(Success(key, model));
         }
 
-        private ModelBindingResult(string key, object model, bool isModelSet, ModelValidationNode validationNode)
+        private ModelBindingResult(string key, object model, bool isModelSet)
         {
             Key = key;
             Model = model;
             IsModelSet = isModelSet;
-            ValidationNode = validationNode;
         }
 
         /// <summary>
@@ -108,11 +105,6 @@ namespace Microsoft.AspNet.Mvc.ModelBinding
         /// </para>
         /// </summary>
         public bool IsModelSet { get; }
-
-        /// <summary>
-        /// A <see cref="ModelValidationNode"/> associated with the current <see cref="ModelBindingResult"/>.
-        /// </summary>
-        public ModelValidationNode ValidationNode { get; }
 
         /// <inheritdoc />
         public override bool Equals(object obj)

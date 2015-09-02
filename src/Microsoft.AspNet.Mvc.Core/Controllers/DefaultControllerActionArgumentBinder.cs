@@ -82,20 +82,22 @@ namespace Microsoft.AspNet.Mvc.Controllers
                 parameter.Name);
 
             var modelBindingResult = await operationContext.ModelBinder.BindModelAsync(modelBindingContext);
-            if (modelBindingResult.IsModelSet &&
-                modelBindingResult.ValidationNode != null)
+            if (modelBindingResult.IsModelSet)
             {
-                var modelExplorer = new ModelExplorer(
-                    _modelMetadataProvider,
-                    metadata,
-                    modelBindingResult.Model);
-                var validationContext = new ModelValidationContext(
-                    modelBindingContext.BindingSource,
-                    operationContext.ValidatorProvider,
-                    modelState,
-                    modelExplorer);
-
-                _validator.Validate(validationContext, modelBindingResult.ValidationNode);
+                if (modelBindingResult.Model == null && 
+                    modelState.GetValidationState(modelBindingResult.Key) != ModelValidationState.Valid)
+                {
+                    modelState.MarkFieldValid(modelBindingResult.Key);
+                }
+                else
+                {
+                    _validator.Validate(
+                        operationContext.ValidatorProvider,
+                        modelState,
+                        modelBindingContext.ValidationState,
+                        modelBindingResult.Key,
+                        modelBindingResult.Model);
+                }
             }
 
             return modelBindingResult;
